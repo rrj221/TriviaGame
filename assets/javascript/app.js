@@ -1,12 +1,10 @@
-// window.onload=function() {   console.log("hello world.");
-
 var correctAnswers = 0;
 var incorrectAnswers = 0;
 var unanswered = 0;
 var questionCount = 0;
 var currentQuestion = '';
-var defaultBreakTime = 3;
-var defaultTimerTime = 15;
+var defaultBreakTime = 6;
+var defaultTimerTime = 25;
 var correctCount = 0;
 var incorrectCount = 0;
 var unansweredCount = 0;
@@ -19,7 +17,7 @@ var audioEnd = new Audio('assets/sounds/fantasy-emotional.wav');
 function backgroundBlue() {
 	$("html").css("background-color", "blue");
     $("html").css("background-image", "none");
-}
+};
 
 function shortPlay(song) {
 	song.play();
@@ -27,7 +25,7 @@ function shortPlay(song) {
 		song.pause();
 		song.currentTime = 0;
 	}, defaultBreakTime * 1000);
-}
+};
 
 function loopPlay(song) {
 	song.addEventListener('ended', function() {
@@ -35,12 +33,12 @@ function loopPlay(song) {
     	this.play();
 	}, false);
 	song.play();
-}
+};
 
 function stopSong(song) {
 	song.pause();
 	song.currentTime = 0;
-}
+};
 
 var questions = {
 	q1: {
@@ -299,9 +297,7 @@ var timer = {
 function findCorrect(question) {
 	for (i = 1; i <= 4; i++) {
 		var choice = "choice"+i;
-		console.log(questions.q1.choices.choice3.isCorrect);
 		if (questions[question].choices[choice].isCorrect) {
-			console.log("if woot");
 			return questions[question].choices[choice].name;
 		} 
 	}
@@ -321,7 +317,7 @@ function displayQuestion() {
 	$(".gameArea").empty();
 	backgroundBlue();
 
-	//displays questions
+	//displays questions to DOM
 	$("<div>", {class: "question", text: questions[currentQuestion].question}).appendTo(".gameArea");
 	for (i = 1; i <= 4; i++) {
 		var choice = 'choice'+i;
@@ -434,7 +430,6 @@ $(".gameArea").on("click", "#startButton", function() {
 
 $(".gameArea").on("click", ".choice1, .choice2, .choice3, .choice4", function() {
 	var guess = $(this).attr("class");
-	console.log(guess);
 	if (questions[currentQuestion].choices[guess].isCorrect) {
 		correct();
 	} else if (!questions[currentQuestion].choices[guess].isCorrect) {
@@ -462,16 +457,3 @@ $(".gameArea").on("mouseleave", ".choice1, .choice2, .choice3, .choice4", functi
 	$(this).css("background", "green");
 	$(this).css('color', 'white');
 });
-
-
-
-
-
-
-
-
-
-
-
-
-// }
