@@ -286,9 +286,12 @@ var timer = {
     outOfTime: function() {
     	if (timer.time <= 0) {
     		timer.stop();
-    		backgroundBlue();
     		$(".gameArea").empty();
     		$("<div>", {class: "unanswered", text: "Times up!"}).appendTo(".gameArea");
+    		showCorrectBackground();
+			$("<div>", {class: "answer", text: "The correct answer is: "+findCorrect(currentQuestion)}).appendTo(".gameArea");
+			unansweredCount++;
+			shortPlay(audioFail);
     		setTimeout(nextQuestion, defaultBreakTime * 1000);
     	}
     }
@@ -343,14 +346,18 @@ function correct() {
 	shortPlay(audioApplause);
 };
 
+function showCorrectBackground() {
+	var correctChoice = questions[currentQuestion].correct;  //returns choice1, choice2....
+	var correctBackGround = currentQuestion+"-"+correctChoice;
+	$('html').css('background-image', "url('assets/images/"+correctBackGround+".jpg')");	
+}
+
 function incorrect() {
 	$(".gameArea").empty();
 	timer.stop();
 
 	//show correct background
-	var correctChoice = questions[currentQuestion].correct;  //returns choice1, choice2....
-	var correctBackGround = currentQuestion+"-"+correctChoice;
-	$('html').css('background-image', "url('assets/images/"+correctBackGround+".jpg')");
+	showCorrectBackground();
 
 	$("<div>", {class: "correct", text: "That's not correct!"}).appendTo(".gameArea");
 	$("<div>", {class: "answer", text: "The correct answer is: "+findCorrect(currentQuestion)}).appendTo(".gameArea");
@@ -359,13 +366,7 @@ function incorrect() {
 	shortPlay(audioFail);
 };
 
-function unanswered() {
-	$(".gameArea").empty();
-	timer.stop();
-	$("<div>", {class: "answer", text: "The correct answer is: "+findCorrect(currentQuestion)}).appendTo(".gameArea");
-	unansweredCount++;
-	shortPlay(audioFail);
-};
+
 
 function nextQuestion() {
 	questionCount++;
