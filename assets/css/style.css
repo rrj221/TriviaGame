@@ -6,53 +6,25 @@ html {
 	background-attachment: fixed;
 }
 
-h1 {
+h1, h2 {
 	display: inline-block;
-	/*width: 500px;*/
 	background-color: green;
+	padding: 10px;
 }
 
 h2 {
 	float: right;
-	background-color: green;
-	display: inline-block;
 }
 
-.timerArea {
+.timerArea, .question, .correct, .answer, .gameOver, .startOver {
 	background-color: green;
 	width: 500px;
 }
 
-.question {
-	background-color: green;
-	width: 500px;	
-}
-
-.correct {
+.unanswered, .numberCorrect, .numberIncorrect, .winner1, .winner2, .blankRow, .numberUnanswered {
 	background-color: green;
 	width: 500px;
 }
-
-.answer {
-	background-color: green;
-	width: 500px;
-}
-
-.gameOver {
-	background-color: green;
-	width: 500px;
-}
-
-.startOver {
-	background-color: green;
-	width: 500px;
-}
-
-.unanswered {
-	background-color: green;
-	width: 500px;
-}
-
 
 
 body {
@@ -70,29 +42,8 @@ body {
 
 #startButton {
 	background-color: green;
+	width: 150px;
+	height: 75px;
+	font-size: 35px;
 }
 
-/*.q1-choice1 {
-	background-image: url(../images/img-q1-3.jpg);
-	opacity: 1;
-}
-
-.q1-choice2 {
-	background-image: url(../images/earphones.jpg);
-	opacity: 1;
-}
-
-.q1-choice3 {
-	background-image: url(../images/ipad.jpg);
-	opacity: 1;
-}
-
-.q1-choice4 {
-	background-image: url(../images/iphone.jpg);
-	opacity: 1;
-}
-
-.hovered {
-	background-color: white;
-	color: black;
-}*/

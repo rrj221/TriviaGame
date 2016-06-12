@@ -5,12 +5,41 @@ var incorrectAnswers = 0;
 var unanswered = 0;
 var questionCount = 0;
 var currentQuestion = '';
-var defaultBreakTime = 5;
+var defaultBreakTime = 3;
 var defaultTimerTime = 15;
+var correctCount = 0;
+var incorrectCount = 0;
+var unansweredCount = 0;
+
+var audioBoop = new Audio('assets/sounds/hit-01.wav');
+var audioApplause = new Audio('assets/sounds/applause-short.mp3');
+var audioFail = new Audio('assets/sounds/fail.mp3');
+var audioEnd = new Audio('assets/sounds/fantasy-emotional.wav');
 
 function backgroundBlue() {
 	$("html").css("background-color", "blue");
     $("html").css("background-image", "none");
+}
+
+function shortPlay(song) {
+	song.play();
+	setTimeout(function() {
+		song.pause();
+		song.currentTime = 0;
+	}, defaultBreakTime * 1000);
+}
+
+function loopPlay(song) {
+	song.addEventListener('ended', function() {
+    	this.currentTime = 0;
+    	this.play();
+	}, false);
+	song.play();
+}
+
+function stopSong(song) {
+	song.pause();
+	song.currentTime = 0;
 }
 
 var questions = {
@@ -18,6 +47,8 @@ var questions = {
 		name: "college",
 		question: "Where did Ryan go to college?",
 		choices: {
+			//it would have been simpler to do this as an array but I didn't realize until later that
+			//I wouldn't need the other attributes that I thought I would use later
 			choice1: {
 				name: "Harvard",
 				isCorrect: false,
@@ -39,7 +70,8 @@ var questions = {
 				image: "",
 			},
 		},
-		gif: "assets/images/hokie.gif",
+		gif: "assets/images/vt-bird-gif.gif",
+		correct: "choice3",
 	},
 	q2: {
 		name: "job",
@@ -67,6 +99,7 @@ var questions = {
 			},
 		},
 		gif: 'assets/images/nylife.gif',
+		correct: "choice1",
 	},	
 	q3: {
 		name: "sport",
@@ -94,6 +127,7 @@ var questions = {
 			},
 		},
 		gif: 'assets/images/basketball.gif',
+		correct: "choice4",
 	},	
 	q4: {
 		name: "band",
@@ -121,6 +155,7 @@ var questions = {
 			},
 		},
 		gif: 'assets/images/jerry.gif',
+		correct: "choice2",
 	},
 	q5: {
 		name: "major",
@@ -148,6 +183,7 @@ var questions = {
 			},
 		},
 		gif: 'assets/images/accounting.gif',
+		correct: "choice3",
 	},
 	q6: {
 		name: "instrument",
@@ -175,6 +211,7 @@ var questions = {
 			},
 		},
 		gif: 'assets/images/guitar.gif',
+		correct: "choice1",
 	},	
 	q7: {
 		name: "town",
@@ -202,6 +239,7 @@ var questions = {
 			},
 		},
 		gif: 'assets/images/jersey.gif',
+		correct: "choice4",
 	},	
 	q8: {
 		name: "pet",
@@ -228,50 +266,22 @@ var questions = {
 			},
 		},
 		gif: 'assets/images/cat.gif',
+		correct: "choice2",
 	},			
 };
 
 var intervalId;
 var timer = {
     time: defaultTimerTime,
-    // lap:1,
-    // reset: function () {
-    //     stopwatch.time = 0;
-    //     stopwatch.lap = 1;
-    //     //change the "display" div to "00:00"
-    //     $("#display").html(stopwatch.timeConverter(0));
-
-    //     //empty the "laps" div
-    //     $("#laps").empty();
-    //     stopwatch.stop();
-    // },
-    countdown: function() {
-    	intervalId = setInterval(timer.count, 1 * 1000);
-
-    },
     start: function() {
         //Use setInterval to start the count here
         intervalId = setInterval(timer.count, 1 * 1000);
     },
     stop: function() {
-        //Use clearInterval to stop the count here
         clearInterval(intervalId);
     },
-    recordLap: function() {
-        //Get the current time, pass that into the stopwatch.timeConverter function, and save the result in a variable
-
-        //Add the current lap and time to the "laps" div
-        
-        //increment lap by 1, remember we cant use "this" here
-    },
     count: function() {
-        //increment time by 1, remember we cant use "this" here
         timer.time--;
-
-        //Get the current time, pass that into the stopwatch.timeConverter function, and save the result in a variable
-        // var formattedTime = stopwatch.timeConverter(stopwatch.time);
-        //Use the variable you just created to show the converted time in the "display" div
-        // $("#display").text(formattedTime);
         $('.timer').text("Time Remaining: "+timer.time+" Seconds");   
         timer.outOfTime();   
     },
@@ -293,29 +303,12 @@ function findCorrect(question) {
 		if (questions[question].choices[choice].isCorrect) {
 			console.log("if woot");
 			return questions[question].choices[choice].name;
-		} else {
-			console.log("here I am on else");
-		}	
-	}
-};
-
-function findCorrectChoiceNum(question) {
-	for (i = 1; i <= 4; i++) {
-		var choice = "choice"+i;
-		console.log(questions.q1.choices.choice3.isCorrect);
-		if (questions[question].choices[choice].isCorrect) {
-			console.log("if woot");
-			return choice;
-		} else {
-			console.log("here I am on else");
-		}	
+		} 
 	}
 };
 
 function displayTimer() {
-	
 	$(".timerArea").empty();
-
 	$("<div>", {class: "timer"}).appendTo(".timerArea");
 	$('.timer').text("Time Remaining: "+defaultTimerTime+" Seconds");
 	timer.start();
@@ -324,15 +317,11 @@ function displayTimer() {
 
 function displayQuestion() {
 	currentQuestion = 'q'+questionCount;
-
 	timer.time = defaultTimerTime;
-
-	// displayTimer();
-
 	$(".gameArea").empty();
-
 	backgroundBlue();
 
+	//displays questions
 	$("<div>", {class: "question", text: questions[currentQuestion].question}).appendTo(".gameArea");
 	for (i = 1; i <= 4; i++) {
 		var choice = 'choice'+i;
@@ -353,6 +342,9 @@ function correct() {
 	gif = questions[currentQuestion].gif;
 	$("<img>").attr('src', gif).appendTo('.gameArea');
 	setTimeout(nextQuestion, defaultBreakTime * 1000);
+	correctCount++;
+
+	shortPlay(audioApplause);
 };
 
 function incorrect() {
@@ -360,20 +352,24 @@ function incorrect() {
 	timer.stop();
 
 	//show correct background
-	var correctChoice = findCorrectChoiceNum(currentQuestion);  //returns choice1, choice2....
+	var correctChoice = questions[currentQuestion].correct;  //returns choice1, choice2....
 	var correctBackGround = currentQuestion+"-"+correctChoice;
 	$('html').css('background-image', "url('assets/images/"+correctBackGround+".jpg')");
 
 	$("<div>", {class: "correct", text: "That's not correct!"}).appendTo(".gameArea");
 	$("<div>", {class: "answer", text: "The correct answer is: "+findCorrect(currentQuestion)}).appendTo(".gameArea");
 	setTimeout(nextQuestion, defaultBreakTime * 1000);
+	incorrectCount++;
+	shortPlay(audioFail);
 };
 
 function unanswered() {
 	$(".gameArea").empty();
 	timer.stop();
 	$("<div>", {class: "answer", text: "The correct answer is: "+findCorrect(currentQuestion)}).appendTo(".gameArea");
-}
+	unansweredCount++;
+	shortPlay(audioFail);
+};
 
 function nextQuestion() {
 	questionCount++;
@@ -383,84 +379,88 @@ function nextQuestion() {
 		displayTimer();
 		displayQuestion();
 	}
-}
+};
 
-function endGame() {
-	console.log("game over");
-	timer.stop();
+function resetVariables() {
+	correctCount = 0;
+	incorrectCount = 0;
 	questionCount = 0;
 	timer.time = defaultTimerTime;
+	unansweredCount = 0;
+};
+
+function allCorrect() {
+	if (correctCount === 8) {
+		$("<p>").attr('class', 'blankRow').appendTo(".gameArea");
+		var niceTextMessage1 = "Congrats on getting all the questions right";
+		var niceTextMessage2 = "Here's a nice picture for you to enjoy";
+		$("<div>", {class: 'winner1', text: niceTextMessage1}).appendTo(".gameArea");
+		$("<div>", {class: 'winner2', text: niceTextMessage2}).appendTo(".gameArea");
+		$("<p>").attr('class', 'blankRow').appendTo(".gameArea");
+		gif = 'assets/images/swift.gif';
+		$("<img>").attr('src', gif).appendTo('.gameArea');
+		$("<p>").attr('class', 'blankRow').appendTo(".gameArea");
+	}
+};
+
+function endGame() {
+	timer.stop();
+
+	//modifying the DOM
 	$(".gameArea").empty();
 	$("<div>", {class: 'gameOver', text: "Game Over!"}).appendTo(".gameArea");
-	$("<p></p>").appendTo(".gameArea");
+	$("<p>").appendTo(".gameArea");
+	$("<div>", {class: 'numberCorrect', text: "You got "+correctCount+" question(s) right"}).appendTo(".gameArea");
+	$("<div>", {class: 'numberIncorrect', text: "You got "+incorrectCount+" question(s) wrong"}).appendTo(".gameArea");
+	$("<div>", {class: 'numberUnanswered', text: "You left "+unansweredCount+" question(s) unanswered"}).appendTo(".gameArea");
+	$("<p>").appendTo(".gameArea");
+	allCorrect();
 	$("<div>", {class: 'startOver', text: "Press the start button to start over"}).appendTo(".gameArea");
-	$("<p></p>").appendTo(".gameArea");
+	$("<p>").appendTo(".gameArea");
 	var newButton = $('<div>').html("<p><a id='startButton' class='btn btn-primary btn-lg' href='#' role='button'>Start</a></p>");
 	$('.gameArea').append(newButton);
-}
+
+	loopPlay(audioEnd);
+
+	resetVariables();
+};
 
 $(".gameArea").on("click", "#startButton", function() {
 	questionCount++;
 	displayQuestion();
 	displayTimer();
+	stopSong(audioEnd);
 });
 
 $(".gameArea").on("click", ".choice1, .choice2, .choice3, .choice4", function() {
 	var guess = $(this).attr("class");
 	console.log(guess);
 	if (questions[currentQuestion].choices[guess].isCorrect) {
-		alert("yay");
 		correct();
-		// $(".gameArea").empty();
-		// displayTimer();
-		// displayQuestion();
 	} else if (!questions[currentQuestion].choices[guess].isCorrect) {
-		alert("nay");
 		incorrect();
-		// $(".gameArea").empty();
-		// displayTimer();
-		// displayQuestion();
 	}
 });
 
 $(".gameArea").on("mouseenter", ".choice1, .choice2, .choice3, .choice4", function() {
 	var guess = $(this).attr("class");
-	
-	// console.log("i hovered");
-	// var bodyClassCurrent = $("body").attr('class');
+	audioBoop.play();
+
+	//display background of hovered image
 	var backGroundImg = $(this).data('backgroundimage');
-
-	// $('html').css("opacity", 0);
-
 	$('html').css("background-image", "url('assets/images/"+backGroundImg+".jpg')");
 
-	// $(this).child().addClass('hovered');
+	//styling hovered choice
 	$(this).css("background-color", "black");
 	$(this).css('color', 'yellow');
-
-	// $('html').animate({opacity: 1}, 750);
-
-	// $("body").switchClass(bodyClassCurrent, bodyClassNew, 500);
-
 });
 
 $(".gameArea").on("mouseleave", ".choice1, .choice2, .choice3, .choice4", function() {
 	var guess = $(this).attr("class");
-	// $('body').css("background-image", "none");
-	// console.log("i hovered");
 
-	// $('html').css('opacity', 1);	
-
-	var bodyClassCurrent = $("body").attr('class');
-	// var bodyClassNew = $(this).data('bodyclassdata');
-
-	// $("body").switchClass(bodyClassCurrent, ".defaultBody", 500);
-
+	//makes their styling go back to normal
 	$(this).css("background", "green");
 	$(this).css('color', 'white');
-	// $(this).child().removeClass('hovered');
-
-
 });
 
 
